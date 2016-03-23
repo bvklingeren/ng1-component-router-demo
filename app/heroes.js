@@ -13,6 +13,7 @@ angular.module('heroes', [])
 
   .component('heroList', {
     template:
+      '<div>{{$ctrl.notify()}}</div>' +
       '<div ng-repeat="hero in $ctrl.heroes" ' +
       '     ng-class="{ selected: $ctrl.isSelected(hero) }">\n' +
         '<a ng-link="[\'HeroDetail\', {id: hero.id}]">{{hero.name}}</a>\n' +
@@ -37,7 +38,7 @@ angular.module('heroes', [])
   });
 
 
-function HeroService($q) {
+function HeroService($q, $timeout) {
   var heroesPromise = $q.when([
     { id: 11, name: 'Mr. Nice' },
     { id: 12, name: 'Narco' },
@@ -48,7 +49,9 @@ function HeroService($q) {
   ]);
 
   this.getHeroes = function() {
-    return heroesPromise;
+    return $timeout(function () {
+      return heroesPromise;
+    }, 1000);
   };
 
   this.getHero = function(id) {
@@ -66,14 +69,22 @@ function HeroListComponent(heroService) {
 
   this.$routerOnActivate = function(next, previous) {
     // Load up the heroes for this view
+    console.log('Activating');
     return heroService.getHeroes().then(function(heroes) {
+      console.log('Got heroes');
       $ctrl.heroes = heroes;
       selectedId = next.params.id;
     });
   };
 
   this.isSelected = function(hero) {
+    console.log('Is selected');
     return (hero.id == selectedId);
+  };
+
+  this.notify = function() {
+    console.log('Is notified');
+    return 'notified';
   };
 }
 
